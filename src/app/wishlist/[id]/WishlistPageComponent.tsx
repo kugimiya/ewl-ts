@@ -69,9 +69,9 @@ export function WishlistPageComponent({ rawWishlist, nickname }: { rawWishlist: 
 
     if (item.type === 'item') {
       return (
-        <label htmlFor={`ch_${item.index}`} style={{ cursor: item.blocked ? 'not-allowed' : 'pointer' }}>
+        <label htmlFor={`ch_${item.index}`} style={{ cursor: item.blocked ? 'not-allowed' : 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
           <input id={`ch_${item.index}`} type='checkbox' checked={item.blocked} disabled={item.blocked} onChange={handleCheck(item.index)} />
-          &nbsp;<span style={{ textDecoration: item.blocked ? 'line-through' : undefined }}>{item.content}</span>
+          <span style={{ textDecoration: item.blocked ? 'line-through' : undefined }}>{item.content}</span>
         </label>
       );
     }
@@ -80,10 +80,10 @@ export function WishlistPageComponent({ rawWishlist, nickname }: { rawWishlist: 
   }
 
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '24px' }}>
       {strings.map(item => (
         <div key={item.index} style={{ minHeight: '16px' }}>{getContent(item)}</div>
       ))}
-    </>
+    </div>
   );
 }
