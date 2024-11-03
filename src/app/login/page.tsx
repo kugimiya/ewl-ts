@@ -4,6 +4,7 @@ import { useFormState } from 'react-dom'
 import { useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { LoginState, loginUser } from "@/app/actions/loginUser";
+import { Divider, Paper, Stack, Typography } from '@mui/material';
 
 const initialState: LoginState = {
   error: null,
@@ -23,26 +24,30 @@ export default function LoginPage() {
   }, [state.logined, state.session]);
 
   return (
-    <main>
-      <h2>Логин</h2>
+    <Paper sx={{ padding: 2 }}>
+      <Stack direction="column" gap={2}>
+        <Typography variant="h4">Логин</Typography>
 
-      {!state.logined && !state.error && (
-        <div>
+        <Divider variant="fullWidth" />
+
+        {!state.logined && !state.error && (
           <form action={formAction}>
-            <input type="text" name="nickname" placeholder="Никнейм" required />
-            <input type="password" name="password" placeholder="Пароль" required />
-            <input type="submit" value="Далее" />
+            <Stack direction="column" gap={1} maxWidth={480}>
+              <input type="text" name="nickname" placeholder="Никнейм" required />
+              <input type="password" name="password" placeholder="Пароль" required />
+              <input type="submit" value="Далее" />
+            </Stack>
           </form>
-        </div>
-      )}
+        )}
 
-      {!state.logined && state.error && (
-        <div>Ошибка: {state.error}</div>
-      )}
+        {!state.logined && state.error && (
+          <div>Ошибка: {state.error}</div>
+        )}
 
-      {state.logined && (
-        <div>Логин прошел успешно, дождитесь перенаправления на дашборд</div>
-      )}
-    </main>
+        {state.logined && (
+          <div>Логин прошел успешно, дождитесь перенаправления на дашборд</div>
+        )}
+      </Stack>
+    </Paper>
   );
 }

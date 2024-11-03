@@ -1,13 +1,20 @@
+import { Divider, Paper, Stack, Typography } from "@mui/material";
 import Link from "next/link";
+import { Link as MuiLink } from "@mui/material";
 
 export default function Home() {
   return (
-    <main>
-      <h1>Это сервис список_желание</h1>
+    <Paper sx={{ padding: 2 }}>
+      <Stack direction="column" gap={2}>
+        <Typography variant="h4">Это микросервис для вишлистов</Typography>
 
-      <Link href='/login'>Логиниться здесь</Link>
-      <br />
-      <Link href='/register'>Регаться здесь</Link>
-    </main>
+        <Divider variant="fullWidth" />
+
+        <Stack direction="row" gap={2}>
+          <MuiLink href='/login' component={Link}>Логин</MuiLink>
+          <MuiLink href='/register' component={Link}>Регистрация</MuiLink>
+        </Stack>
+      </Stack>
+    </Paper>
   );
 }
