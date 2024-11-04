@@ -8,6 +8,7 @@ import { ItemType, parseWishlist } from "@/utils/parseWishlist";
 import { Box, Button, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Stack, TextField, Typography } from "@mui/material";
 import IconPlus from '@mui/icons-material/Add';
 import IconDel from '@mui/icons-material/Delete';
+import Snackbar from '@mui/material/Snackbar';
 
 const initialState: SaveWishlistState = {
   error: null,
@@ -16,15 +17,48 @@ const initialState: SaveWishlistState = {
 
 export default function FormComponent({ originWishlist }: { originWishlist: string }) {
   const router = useRouter();
-  const [state, formAction] = useFormState(saveWishlist, initialState);
 
   const [wishlist, setWishlist] = useState(originWishlist);
   const [currentCategory, setCurrentCategory] = useState(-1);
+  const [showErrorSnack, setErrorSnack] = useState(false);
+  const [messageError, setMessageError] = useState('Ошибка');
+  const [showSavedSnack, setSavedSnack] = useState(false);
+
+  const [saveMode, setSaveMode] = useState(false);
+  const [saveMoment, setSaveMoment] = useState(0);
 
   const items = parseWishlist(wishlist);
   const category = items.find((item) => currentCategory === item.index);
   const categoryItems = category !== undefined ? items.filter((item) => item.parent === category.index && item.type === 'item') : [];
   const headings = items.filter((item) => item.type === 'heading');
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (saveMode && Date.now() > saveMoment) {
+        const button = document.getElementById('savebtn');
+        if (button) {
+          button.click();
+          setSaveMode(false);
+          clearInterval(id);
+        }
+      }
+    }, 100);
+    return () => clearInterval(id);
+  }, [saveMode, saveMoment]);
+
+  const saveActionWrapper = async (state: SaveWishlistState, data: FormData): Promise<SaveWishlistState> => {
+    try {
+      const response = await saveWishlist(state, data);
+      router.refresh();
+      setSavedSnack(true);
+      return response;
+    } catch (e) {
+      setMessageError(`Ошибка сохранения: ${(e as Error).message}`);
+      setErrorSnack(true);
+      return { error: null, saved: false };
+    }
+  };
+  const [state, formAction] = useFormState(saveActionWrapper, initialState);
 
   const handleAddCategory = () => {
     setWishlist((prev) => {
@@ -98,26 +132,49 @@ export default function FormComponent({ originWishlist }: { originWishlist: stri
     );
   }
 
-  useEffect(() => {
-    if (state.saved) {
-      alert('Сохранено!');
-      router.refresh();
+  const handleOnBlur = () => {
+    if (originWishlist !== wishlist) {
+      setSaveMode(true);
+      setSaveMoment(Date.now() + 2500);
     }
-  }, [state.saved, router]);
+  }
 
-  useEffect(() => {
-    if (state.error) {
-      alert(state.error);
-    }
-  }, [state.error]);
+  const handleCloseSavedSnack = () => {
+    setSavedSnack(false);
+  };
+
+  const handleCloseErrorSnack = () => {
+    setErrorSnack(false);
+  };
 
   const drawerWidth = 120;
-
   return (
     <form action={formAction}>
       <Stack direction="column" gap={4}>
+        <Snackbar
+          open={showSavedSnack}
+          autoHideDuration={1000}
+          onClose={handleCloseSavedSnack}
+          message="Сохранено"
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        />
+
+        <Snackbar
+          open={showErrorSnack}
+          autoHideDuration={1000}
+          onClose={handleCloseErrorSnack}
+          message={messageError}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        />
+
         <Box>
-          <Button type="submit" variant="contained">Сохранить изменения</Button>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={saveMode || originWishlist === wishlist}
+          >{saveMode ? "Автосохранение через 2.5 секунды..." : "Сохранить изменения"}</Button>
+
+          <Button type="submit" id="savebtn" sx={{ display: 'none' }}>hidden</Button>
         </Box>
 
         <Stack direction="row" component={Paper}>
@@ -158,6 +215,7 @@ export default function FormComponent({ originWishlist }: { originWishlist: stri
                   label={`Название категории #${category.index}`}
                   value={category.content}
                   onChange={(ev) => handleCategoryNameChange(ev.target.value)}
+                  onBlur={handleOnBlur}
                 />
 
                 <Button color="error" onClick={() => handleDeleteCategory(category.index)}>Удалить категорию</Button>
@@ -173,6 +231,7 @@ export default function FormComponent({ originWishlist }: { originWishlist: stri
                       label={`Виш #${item.index}`}
                       value={item.content}
                       onChange={(ev) => handleWishNameChange(ev.target.value, item)}
+                      onBlur={handleOnBlur}
                     />
 
                     <Button onClick={() => handleDeleteWish(item.index)}><IconDel color="error" /></Button>

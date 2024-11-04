@@ -35,7 +35,7 @@ export default async function DashboardPage() {
           Ссылка на <Link href={`/wishlist/${data.User.nickname}`}>публичную страницу</Link> этого вишлиста
         </Alert>
 
-        <FormComponent originWishlist={data.User.wishlist} />
+        <FormComponent originWishlist={data.User.wishlist.replaceAll('\t', ' ').replaceAll('\r\n', '\n')} />
       </Stack>
     </Paper>
   );

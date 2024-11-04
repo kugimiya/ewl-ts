@@ -8,8 +8,10 @@ export type ItemType = {
 
 export const parseWishlist = (rawWishlist: string): ItemType[] => {
   let parent = -1;
-  const strings: ItemType[] = rawWishlist.split('\n')
-    .map(line => line.trim())
+  const strings: ItemType[] = rawWishlist
+    .replaceAll('\t', ' ')
+    .replaceAll('\r\n', '\n')
+    .split('\n')
     .map((line, index) => {
       if (line.startsWith('#')) {
         parent = index;
@@ -27,16 +29,6 @@ export const parseWishlist = (rawWishlist: string): ItemType[] => {
           type: 'item',
           blocked: true,
           content: line.replace('(занято) ', ''),
-          index,
-          parent,
-        };
-      }
-
-      if (line === '') {
-        return {
-          type: 'empty',
-          blocked: true,
-          content: '',
           index,
           parent,
         };

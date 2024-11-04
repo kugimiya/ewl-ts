@@ -24,7 +24,7 @@ export default async function WL({ params }: { params?: { id: string } }) {
           Можешь просто нажать на название подарка, и он будет занят. Это анонимно и не требует регистрации.
         </Alert>
 
-        <WishlistPageComponent rawWishlist={user.wishlist} nickname={params?.id || ''} />
+        <WishlistPageComponent rawWishlist={user.wishlist.replaceAll('\t', ' ').replaceAll('\r\n', '\n')} nickname={params?.id || ''} />
 
         <Alert icon={<IconQuestionMark fontSize="inherit" />} severity="info">
           Тоже захотел такой вишлист? <Link href='/register'>Пройди регистрацию и заведи</Link>
