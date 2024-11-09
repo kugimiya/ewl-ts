@@ -26,7 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <CssBaseline />
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
-            <Box sx={{ padding: 2 }}>
+            <Box sx={{ padding: { xs: 0, md: 2 } }} >
               {children}
             </Box>
           </ThemeProvider>

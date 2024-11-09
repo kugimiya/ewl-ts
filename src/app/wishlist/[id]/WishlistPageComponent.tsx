@@ -46,7 +46,7 @@ export function WishlistPageComponent({ rawWishlist, nickname }: { rawWishlist: 
           return (
             <>
               {contentWithoutLink[0]}
-              <Link target="_blank" href={link}>{link}</Link>
+              <Link target="_blank" href={link} onClick={(e) => e.stopPropagation()}>{link}</Link>
               {contentWithoutLink[1]}
             </>
           )
@@ -78,10 +78,10 @@ export function WishlistPageComponent({ rawWishlist, nickname }: { rawWishlist: 
       <Divider orientation="vertical" variant="middle" flexItem />
 
       {category !== undefined && (
-        <Stack padding={2} gap={2} direction="column">
+        <Stack sx={{ padding: { xs: 1, md: 2 }, gap: { xs: 2, md: 2 } }} direction="column">
           {categoryItems.map((item) => (
             <Stack key={item.index} direction="row">
-              <label htmlFor={`ch_${item.index}`} style={{ cursor: item.blocked ? 'not-allowed' : 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <label htmlFor={`ch_${item.index}`} style={{ cursor: item.blocked ? 'not-allowed' : 'pointer', display: 'flex', gap: '8px', alignItems: 'start' }}>
                 <input id={`ch_${item.index}`} type='checkbox' checked={item.blocked} disabled={item.blocked} onChange={handleCheck(item.index)} />
                 <span style={{ textDecoration: item.blocked ? 'line-through' : undefined }}>{enrichContentWithLink(item.content)}</span>
               </label>

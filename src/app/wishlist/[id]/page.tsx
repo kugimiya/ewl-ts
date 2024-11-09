@@ -14,7 +14,7 @@ export default async function WL({ params }: { params?: { id: string } }) {
   });
 
   return (
-    <Paper sx={{ padding: 2 }}>
+    <Paper sx={{ padding: { xs: 1, md: 2 } }}>
       <Stack direction="column" gap={2}>
         <Typography variant="h4">Вишлист юзера <b>{user.nickname}</b></Typography>
 
