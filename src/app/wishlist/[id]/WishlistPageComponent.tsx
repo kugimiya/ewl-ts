@@ -2,9 +2,9 @@
 
 import { toggleItemInWishlist } from "@/app/actions/toggleItemInWishlist";
 import { ItemType, parseWishlist } from "@/utils/parseWishlist";
-import { Divider, List, ListItem, ListItemButton, ListItemText, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Divider, Link, List, ListItem, ListItemButton, ListItemText, Paper, Stack, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { ReactElement, useState } from "react";
 
 export function WishlistPageComponent({ rawWishlist, nickname }: { rawWishlist: string, nickname: string }) {
   const router = useRouter();
@@ -32,6 +32,35 @@ export function WishlistPageComponent({ rawWishlist, nickname }: { rawWishlist: 
     setCurrentCategory(index);
   };
 
+  const enrichContentWithLink = (content: string): ReactElement => {
+    const linkChecker = /https:\/\/\S*/;
+
+    if (linkChecker.test(content)) {
+      const result = linkChecker.exec(content);
+
+      if (result) {
+        const link = result.at(0);
+
+        if (link) {
+          const contentWithoutLink = content.split(link);
+          return (
+            <>
+              {contentWithoutLink[0]}
+              <Link target="_blank" href={link}>{link}</Link>
+              {contentWithoutLink[1]}
+            </>
+          )
+        }
+
+        return <>{content}</>;
+      }
+
+      return <>{content}</>;
+    } else {
+      return <>{content}</>;
+    }
+  };
+
   return (
     <Stack direction="row" component={Paper}>
       <List sx={{ width: 320, maxWidth: 320 }}>
@@ -54,7 +83,7 @@ export function WishlistPageComponent({ rawWishlist, nickname }: { rawWishlist: 
             <Stack key={item.index} direction="row">
               <label htmlFor={`ch_${item.index}`} style={{ cursor: item.blocked ? 'not-allowed' : 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <input id={`ch_${item.index}`} type='checkbox' checked={item.blocked} disabled={item.blocked} onChange={handleCheck(item.index)} />
-                <span style={{ textDecoration: item.blocked ? 'line-through' : undefined }}>{item.content}</span>
+                <span style={{ textDecoration: item.blocked ? 'line-through' : undefined }}>{enrichContentWithLink(item.content)}</span>
               </label>
             </Stack>
           ))}
