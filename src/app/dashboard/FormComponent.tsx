@@ -5,7 +5,7 @@ import { saveWishlist, SaveWishlistState } from "@/app/actions/saveWishlist";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ItemType, parseWishlist } from "@/utils/parseWishlist";
-import { Box, Button, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Divider, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Stack, TextField, Typography } from "@mui/material";
 import IconPlus from '@mui/icons-material/Add';
 import IconDel from '@mui/icons-material/Delete';
 import Snackbar from '@mui/material/Snackbar';
@@ -78,7 +78,13 @@ export default function FormComponent({ originWishlist }: { originWishlist: stri
 
     setWishlist(
       nextItems
-        .map((nextItem) => nextItem.type === 'heading' ? `#${nextItem.content}` : nextItem.type === 'item' ? nextItem.content : '')
+        .map((nextItem) => {
+          return nextItem.type === 'heading'
+            ? `#${nextItem.content}`
+            : nextItem.type === 'item'
+              ? `${nextItem.blocked ? '(занято) ' : ''}${nextItem.content}`
+              : ''
+        })
         .join('\n')
     );
   };
@@ -92,6 +98,12 @@ export default function FormComponent({ originWishlist }: { originWishlist: stri
   const handleWishNameChange = (nextName: string, item: ItemType) => {
     handleItemCategory({ ...item, content: nextName });
   }
+
+  const handleUnblockWish = (item: ItemType) => {
+    handleItemCategory({ ...item, blocked: false });
+    setSaveMode(true);
+    setSaveMoment(Date.now() + 2500);
+  };
 
   const handleAddWish = () => {
     const nextItems: ItemType[] = [];
@@ -109,7 +121,13 @@ export default function FormComponent({ originWishlist }: { originWishlist: stri
 
     setWishlist(
       nextItems
-        .map((nextItem) => nextItem.type === 'heading' ? `#${nextItem.content}` : nextItem.type === 'item' ? nextItem.content : '')
+        .map((nextItem) => {
+          return nextItem.type === 'heading'
+            ? `#${nextItem.content}`
+            : nextItem.type === 'item'
+              ? `${nextItem.blocked ? '(занято) ' : ''}${nextItem.content}`
+              : ''
+        })
         .join('\n')
     );
   }
@@ -118,7 +136,13 @@ export default function FormComponent({ originWishlist }: { originWishlist: stri
     setWishlist(
       items
         .filter((item) => item.index !== index)
-        .map((nextItem) => nextItem.type === 'heading' ? `#${nextItem.content}` : nextItem.type === 'item' ? nextItem.content : '')
+        .map((nextItem) => {
+          return nextItem.type === 'heading'
+            ? `#${nextItem.content}`
+            : nextItem.type === 'item'
+              ? `${nextItem.blocked ? '(занято) ' : ''}${nextItem.content}`
+              : ''
+        })
         .join('\n')
     );
   }
@@ -127,7 +151,13 @@ export default function FormComponent({ originWishlist }: { originWishlist: stri
     setWishlist(
       items
         .filter((item) => item.index !== index && item.parent !== index)
-        .map((nextItem) => nextItem.type === 'heading' ? `#${nextItem.content}` : nextItem.type === 'item' ? nextItem.content : '')
+        .map((nextItem) => {
+          return nextItem.type === 'heading'
+            ? `#${nextItem.content}`
+            : nextItem.type === 'item'
+              ? `${nextItem.blocked ? '(занято) ' : ''}${nextItem.content}`
+              : ''
+        })
         .join('\n')
     );
   }
@@ -223,18 +253,28 @@ export default function FormComponent({ originWishlist }: { originWishlist: stri
 
               <Typography>Виши:</Typography>
 
-              <Stack paddingY={1} gap={1} direction="column">
+              <Stack paddingY={1} gap={4} direction="column">
                 {categoryItems.map((item) => (
-                  <Stack key={item.index} direction="row">
-                    <TextField
-                      sx={{ width: 640 }}
-                      label={`Виш #${item.index}`}
-                      value={item.content}
-                      onChange={(ev) => handleWishNameChange(ev.target.value, item)}
-                      onBlur={handleOnBlur}
-                    />
+                  <Stack key={item.index} direction="column" gap={1}>
+                    <Stack direction="row">
+                      <TextField
+                        sx={{ width: 640 }}
+                        label={`Виш #${item.index}`}
+                        value={item.content}
+                        onChange={(ev) => handleWishNameChange(ev.target.value, item)}
+                        onBlur={handleOnBlur}
+                      />
 
-                    <Button onClick={() => handleDeleteWish(item.index)}><IconDel color="error" /></Button>
+                      <Button onClick={() => handleDeleteWish(item.index)}><IconDel color="error" /></Button>
+                    </Stack>
+
+                    {item.blocked && (
+                      <Stack direction="column" gap={1}>
+                        <Alert>
+                          Этот виш кто-то выбрал. <Link onClick={() => handleUnblockWish(item)}>Нажми сюда, чтобы самостоятельно снять выбор.</Link>
+                        </Alert>
+                      </Stack>
+                    )}
                   </Stack>
                 ))}
 
@@ -243,7 +283,7 @@ export default function FormComponent({ originWishlist }: { originWishlist: stri
             </Stack>
           )}
 
-          <textarea style={{ width: '100%', display: 'none' }} rows={50} value={wishlist} name="wishlist" />
+          <textarea style={{ width: '100%', display: 'none' }} rows={50} value={wishlist} name="wishlist" onChange={console.log} />
         </Stack>
       </Stack>
     </form>
